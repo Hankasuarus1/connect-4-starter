@@ -27,9 +27,9 @@ void ConnectFour::setUpBoard()
     _gameOptions.rowY = 7;
     _grid->initializeSquares(80, "square.png");
 
-    //if (gameHasAI()) {
-    //    setAIPlayer(AI_PLAYER);
-    //}
+    if (gameHasAI()) {
+        setAIPlayer(AI_PLAYER);
+    }
 
     startGame();
 }
@@ -252,7 +252,7 @@ void ConnectFour::updateAI()
 }
 
 int ConnectFour::negamax(std::string& state, int depth, int playerColor) {
-    
+    int score = evaluateAIBoard(state);
 }
 
 bool isAIBoardFull(const std::string& state) {
@@ -261,7 +261,7 @@ bool isAIBoardFull(const std::string& state) {
 //diagonals just check if we go out of bounds
 //up down also just checks for out of bounds
 //left right needs to check for row changes (store x % 7, if x % 7 - increment < 0 then stop, if x % 7 + increment > 6 then stop)
-int evaluateAIBoard(const std::string& state, int playerColor) {
+int evaluateAIBoard(const std::string& state) {
     int score = 0;
     int positionInRow;
     int increment = 1;
@@ -282,7 +282,8 @@ int evaluateAIBoard(const std::string& state, int playerColor) {
                 } else exit++;
                 if (exit >=2) break;
                 if (count >= 4) {
-                    score++;
+                    if (state[x] == '2') score++;
+                    else score--;
                     break;
                 }
                 exit = 0;
@@ -298,7 +299,8 @@ int evaluateAIBoard(const std::string& state, int playerColor) {
                 } else exit++;
                 if (exit >=2) break;
                 if (count >= 4) {
-                    score++;
+                    if (state[x] == '2') score++;
+                    else score--;
                     break;
                 }
                 exit = 0;
@@ -314,7 +316,8 @@ int evaluateAIBoard(const std::string& state, int playerColor) {
                 } else exit++;
                 if (exit >=2) break;
                 if (count >= 4) {
-                    score++;
+                    if (state[x] == '2') score++;
+                    else score--;
                     break;
                 }
                 exit = 0;
@@ -330,7 +333,8 @@ int evaluateAIBoard(const std::string& state, int playerColor) {
                 } else exit++;
                 if (exit >=2) break;
                 if (count >= 4) {
-                    score++;
+                    if (state[x] == '2') score++;
+                    else score--;
                     break;
                 }
                 exit = 0;
