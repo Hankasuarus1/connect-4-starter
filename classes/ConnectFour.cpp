@@ -225,5 +225,118 @@ int ConnectFour::lowestEmptyRowInColumn(int col) const
 
 void ConnectFour::updateAI() 
 {
-    // AI logic to be implemented
+    int bestVal = -1000;
+    BitHolder* bestMove = nullptr;
+    std::string state = stateString();
+
+    for (int col = 0; col < 7; ++col) {
+        int row = lowestEmptyRowInColumn(col);
+        if (row != -1) {
+            // Make the move
+            state[row * 7 + col] = '2'; // AI is player 2
+            int moveVal = -negamax(state, 0, HUMAN_PLAYER);
+            // Undo the move
+            state[row * 7 + col] = '0';
+            // If the value of the current move is more than the best value, update best
+            if (moveVal > bestVal) {
+                bestMove = _grid->getSquare(col, row);
+                bestVal = moveVal;
+            }
+        }
+    }
+
+    if (bestMove) {
+        if (actionForEmptyHolder(*bestMove)) {
+        }
+    }
+}
+
+int ConnectFour::negamax(std::string& state, int depth, int playerColor) {
+    
+}
+
+bool isAIBoardFull(const std::string& state) {
+    return state.find('0') == std::string::npos;
+}
+//diagonals just check if we go out of bounds
+//up down also just checks for out of bounds
+//left right needs to check for row changes (store x % 7, if x % 7 - increment < 0 then stop, if x % 7 + increment > 6 then stop)
+int evaluateAIBoard(const std::string& state, int playerColor) {
+    int score = 0;
+    int positionInRow;
+    int increment = 1;
+    int count = 1;
+    int exit = 0;
+    for (int x = 0; x < state.size(); x++) {
+        if (state[x] == '0') {
+            continue;
+        } else {
+            //check horizontal
+            positionInRow = x % 7;
+            while (positionInRow - increment >= 0 || positionInRow + increment <= 6) {
+                if (positionInRow - increment >= 0 && (state[x - increment] == state[x] || state[x - increment] == '0')) {
+                    count++;
+                } else exit++;
+                if (positionInRow + increment <= 6 && (state[x + increment] == state[x] || state[x + increment] == '0')) {
+                    count++;
+                } else exit++;
+                if (exit >=2) break;
+                if (count >= 4) {
+                    score++;
+                    break;
+                }
+                exit = 0;
+                increment++;
+            }
+            //check vertical
+            while (x - increment * 7 >= 0 || x + increment * 7 < state.size()) {
+                if (x - increment * 7 >= 0 && (state[x - increment * 7] == state[x] || state[x - increment * 7] == '0')) {
+                    count++;
+                } else exit++;
+                if (x + increment * 7 < state.size() && (state[x + increment * 7] == state[x] || state[x + increment * 7] == '0')) {
+                    count++;
+                } else exit++;
+                if (exit >=2) break;
+                if (count >= 4) {
+                    score++;
+                    break;
+                }
+                exit = 0;
+                increment++;
+            }
+            //check diagonal /
+            while (x - increment * 6 >= 0 || x + increment * 6 < state.size()) {
+                if (x - increment * 6 >= 0 && (state[x - increment * 6] == state[x] || state[x - increment * 6] == '0')) {
+                    count++;
+                } else exit++;
+                if (x + increment * 6 < state.size() && (state[x + increment * 6] == state[x] || state[x + increment * 6] == '0')) {
+                    count++;
+                } else exit++;
+                if (exit >=2) break;
+                if (count >= 4) {
+                    score++;
+                    break;
+                }
+                exit = 0;
+                increment++;
+            }
+            //check diagonal \ 
+            while (x - increment * 8 >= 0 || x + increment * 8 < state.size()) {
+                if (x - increment * 8 >= 0 && (state[x - increment * 8] == state[x] || state[x - increment * 8] == '0')) {
+                    count++;
+                } else exit++;
+                if (x + increment * 8 < state.size() && (state[x + increment * 8] == state[x] || state[x + increment * 8] == '0')) {
+                    count++;
+                } else exit++;
+                if (exit >=2) break;
+                if (count >= 4) {
+                    score++;
+                    break;
+                }
+                exit = 0;
+                increment++;
+            }
+        }
+    }
+    return score;
 }
