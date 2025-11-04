@@ -85,21 +85,29 @@ Player* ConnectFour::ownerAt(int index) const
 
 Player* ConnectFour::checkForWinner() {
     Player* currPlayer = _grid->getSquare(_lastMove.first, _lastMove.second)->bit()->getOwner();
-    int count = 1;
-    int increment = 1;
-    int exit = 0;
+    int count = 1, increment = 1, exit = 0;
+    bool right = true, left = true;
     //checking horizontal'
     ChessSquare *positiveSquare = _grid->getSquare(_lastMove.first + increment, _lastMove.second);
     ChessSquare *negativeSquare = _grid->getSquare(_lastMove.first - increment, _lastMove.second);
     while (positiveSquare || negativeSquare) {
         increment++;
-        if (positiveSquare && positiveSquare->bit() && positiveSquare->bit()->getOwner() == currPlayer) count++;
-        else exit++;
-        if (negativeSquare && negativeSquare->bit() && negativeSquare->bit()->getOwner() == currPlayer) count++;
-        else exit++;
+        if (positiveSquare && positiveSquare->bit() && positiveSquare->bit()->getOwner() == currPlayer && right) count++;
+        else 
+        {
+            exit++;
+            right = false;
+        }
+        if (negativeSquare && negativeSquare->bit() && negativeSquare->bit()->getOwner() == currPlayer && left) count++;
+        else 
+        {
+            exit++;
+            left = false;
+        }
         if (exit >=2) break;
         exit = 0;
         if (count >= 4) {
+            printf("Horizontal win detected\n");
             return currPlayer;
         }
         positiveSquare = _grid->getSquare(_lastMove.first + increment, _lastMove.second);
@@ -109,17 +117,28 @@ Player* ConnectFour::checkForWinner() {
     count = 1;
     increment = 1;
     exit = 0;
+    left = true;
+    right = true;
     positiveSquare = _grid->getSquare(_lastMove.first, _lastMove.second + increment);
     negativeSquare = _grid->getSquare(_lastMove.first, _lastMove.second - increment);
     while (positiveSquare || negativeSquare) {
         increment++;
-        if (positiveSquare && positiveSquare->bit() && positiveSquare->bit()->getOwner() == currPlayer) count++;
-        else exit++;
-        if (negativeSquare && negativeSquare->bit() && negativeSquare->bit()->getOwner() == currPlayer) count++;
-        else exit++;
+        if (positiveSquare && positiveSquare->bit() && positiveSquare->bit()->getOwner() == currPlayer && right) count++;
+        else 
+        {
+            exit++;
+            right = false;
+        }
+        if (negativeSquare && negativeSquare->bit() && negativeSquare->bit()->getOwner() == currPlayer && left) count++;
+        else 
+        {
+            exit++;
+            left = false;
+        }
         if (exit >=2) break;
         exit = 0;
         if (count >= 4) {
+            printf("Vertical win detected\n");
             return currPlayer;
         }
         positiveSquare = _grid->getSquare(_lastMove.first, _lastMove.second + increment);
@@ -129,17 +148,28 @@ Player* ConnectFour::checkForWinner() {
     count = 1;
     increment = 1;
     exit = 0;
+    left = true;
+    right = true;
     positiveSquare = _grid->getSquare(_lastMove.first + count, _lastMove.second + count);
     negativeSquare = _grid->getSquare(_lastMove.first - count, _lastMove.second - count);
     while (positiveSquare || negativeSquare) {
         increment++;
-        if (positiveSquare && positiveSquare->bit() && positiveSquare->bit()->getOwner() == currPlayer) count++;
-        else exit++;
-        if (negativeSquare && negativeSquare->bit() && negativeSquare->bit()->getOwner() == currPlayer) count++;
-        else exit++;
+        if (positiveSquare && positiveSquare->bit() && positiveSquare->bit()->getOwner() == currPlayer && right) count++;
+        else 
+        {
+            exit++;
+            right = false;
+        }
+        if (negativeSquare && negativeSquare->bit() && negativeSquare->bit()->getOwner() == currPlayer && left) count++;
+        else 
+        {
+            exit++;
+            left = false;
+        }
         if (exit >=2) break;
         exit = 0;
         if (count >= 4) {
+            printf("Diagonal / win detected\n");
             return currPlayer;
         }
         positiveSquare = _grid->getSquare(_lastMove.first + increment, _lastMove.second + increment);
@@ -149,17 +179,28 @@ Player* ConnectFour::checkForWinner() {
     count = 1;
     increment = 1;
     exit = 0;
+    left = true;
+    right = true;
     positiveSquare = _grid->getSquare(_lastMove.first + count, _lastMove.second - count);
     negativeSquare = _grid->getSquare(_lastMove.first - count, _lastMove.second + count);
     while (positiveSquare || negativeSquare) {
         increment++;
-        if (positiveSquare && positiveSquare->bit() && positiveSquare->bit()->getOwner() == currPlayer) count++;
-        else exit++;
-        if (negativeSquare && negativeSquare->bit() && negativeSquare->bit()->getOwner() == currPlayer) count++;
-        else exit++;
+        if (positiveSquare && positiveSquare->bit() && positiveSquare->bit()->getOwner() == currPlayer && right) count++;
+        else 
+        {
+            exit++;
+            right = false;
+        }
+        if (negativeSquare && negativeSquare->bit() && negativeSquare->bit()->getOwner() == currPlayer && left) count++;
+        else 
+        {
+            exit++;
+            left = false;
+        }
         if (exit >=2) break;
         exit = 0;
         if (count >= 4) {
+            printf("Diagonal \\ win detected\n");
             return currPlayer;
         }
         positiveSquare = _grid->getSquare(_lastMove.first + increment, _lastMove.second - increment);
@@ -216,7 +257,6 @@ int ConnectFour::lowestEmptyRowInColumn(int col) const
 {
     for (int row = 5; row >= 0; --row) {
         if (!_grid->getSquare(col, row)->bit()) {
-            printf("%d %d\n", col, row);
             return row;
         }
     }
@@ -225,6 +265,7 @@ int ConnectFour::lowestEmptyRowInColumn(int col) const
 
 void ConnectFour::updateAI() 
 {
+    printf("updating\n");
     int bestVal = -1000;
     BitHolder* bestMove = nullptr;
     std::string state = stateString();
@@ -234,7 +275,7 @@ void ConnectFour::updateAI()
         if (row != -1) {
             // Make the move
             state[row * 7 + col] = '2'; // AI is player 2
-            int moveVal = -negamax(state, 0, HUMAN_PLAYER);
+            int moveVal = -negamax(state, 2, HUMAN_PLAYER);
             // Undo the move
             state[row * 7 + col] = '0';
             // If the value of the current move is more than the best value, update best
@@ -244,28 +285,25 @@ void ConnectFour::updateAI()
             }
         }
     }
+    printf("finished negamax\n");
 
     if (bestMove) {
         if (actionForEmptyHolder(*bestMove)) {
         }
     }
 }
-
-int ConnectFour::negamax(std::string& state, int depth, int playerColor) {
-    int score = evaluateAIBoard(state);
-}
-
-bool isAIBoardFull(const std::string& state) {
+bool isAIBoardFullCFour(const std::string& state) {
     return state.find('0') == std::string::npos;
 }
 //diagonals just check if we go out of bounds
 //up down also just checks for out of bounds
 //left right needs to check for row changes (store x % 7, if x % 7 - increment < 0 then stop, if x % 7 + increment > 6 then stop)
-int evaluateAIBoard(const std::string& state) {
+int evaluateAIBoardCFour(const std::string& state) {
+    std:: cout << state << std::endl;
     int score = 0;
     int positionInRow;
     int increment = 1;
-    int count = 1;
+    int potentialCount = 1;
     int exit = 0;
     for (int x = 0; x < state.size(); x++) {
         if (state[x] == '0') {
@@ -275,13 +313,13 @@ int evaluateAIBoard(const std::string& state) {
             positionInRow = x % 7;
             while (positionInRow - increment >= 0 || positionInRow + increment <= 6) {
                 if (positionInRow - increment >= 0 && (state[x - increment] == state[x] || state[x - increment] == '0')) {
-                    count++;
+                    potentialCount++;
                 } else exit++;
                 if (positionInRow + increment <= 6 && (state[x + increment] == state[x] || state[x + increment] == '0')) {
-                    count++;
+                    potentialCount++;
                 } else exit++;
                 if (exit >=2) break;
-                if (count >= 4) {
+                if (potentialCount >= 4) {
                     if (state[x] == '2') score++;
                     else score--;
                     break;
@@ -292,13 +330,13 @@ int evaluateAIBoard(const std::string& state) {
             //check vertical
             while (x - increment * 7 >= 0 || x + increment * 7 < state.size()) {
                 if (x - increment * 7 >= 0 && (state[x - increment * 7] == state[x] || state[x - increment * 7] == '0')) {
-                    count++;
+                    potentialCount++;
                 } else exit++;
                 if (x + increment * 7 < state.size() && (state[x + increment * 7] == state[x] || state[x + increment * 7] == '0')) {
-                    count++;
+                    potentialCount++;
                 } else exit++;
                 if (exit >=2) break;
-                if (count >= 4) {
+                if (potentialCount >= 4) {
                     if (state[x] == '2') score++;
                     else score--;
                     break;
@@ -309,13 +347,13 @@ int evaluateAIBoard(const std::string& state) {
             //check diagonal /
             while (x - increment * 6 >= 0 || x + increment * 6 < state.size()) {
                 if (x - increment * 6 >= 0 && (state[x - increment * 6] == state[x] || state[x - increment * 6] == '0')) {
-                    count++;
+                    potentialCount++;
                 } else exit++;
                 if (x + increment * 6 < state.size() && (state[x + increment * 6] == state[x] || state[x + increment * 6] == '0')) {
-                    count++;
+                    potentialCount++;
                 } else exit++;
                 if (exit >=2) break;
-                if (count >= 4) {
+                if (potentialCount >= 4) {
                     if (state[x] == '2') score++;
                     else score--;
                     break;
@@ -326,13 +364,13 @@ int evaluateAIBoard(const std::string& state) {
             //check diagonal \ 
             while (x - increment * 8 >= 0 || x + increment * 8 < state.size()) {
                 if (x - increment * 8 >= 0 && (state[x - increment * 8] == state[x] || state[x - increment * 8] == '0')) {
-                    count++;
+                    potentialCount++;
                 } else exit++;
                 if (x + increment * 8 < state.size() && (state[x + increment * 8] == state[x] || state[x + increment * 8] == '0')) {
-                    count++;
+                    potentialCount++;
                 } else exit++;
                 if (exit >=2) break;
-                if (count >= 4) {
+                if (potentialCount >= 4) {
                     if (state[x] == '2') score++;
                     else score--;
                     break;
@@ -342,5 +380,26 @@ int evaluateAIBoard(const std::string& state) {
             }
         }
     }
+    printf("score: %d\n", score);
     return score;
+}
+
+int ConnectFour::negamax(std::string& state, int depth, int playerColor) {
+    printf("negmaxxing");
+    int score = evaluateAIBoardCFour(state);
+    if (depth == 0 || isAIBoardFullCFour(state)) return score;
+
+    for (int x = 0; x < 7; x++) {
+        int lowest = lowestEmptyRowInColumn(x);
+        if (lowest != -1) {
+            // Make the move
+            state[lowest * 7 + x] = (playerColor == AI_PLAYER) ? '2' : '1';
+            score = std::max(score, -negamax(state, depth - 1, -playerColor));
+            // Undo the move
+            state[lowest * 7 + x] = '0';
+        }
+    }
+    return score;
+    
+    
 }
