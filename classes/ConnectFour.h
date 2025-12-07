@@ -26,7 +26,7 @@ private:
     Bit *      PieceForPlayer(const int playerNumber);
     Player*    ownerAt(int index ) const;
     int        lowestEmptyRowInColumn(int col) const;
-    int        negamax(std::string& state, int depth, int playerColor);
+    int        negamax(std::string& state, int depth, int playerColor, int alpha, int beta);
     Grid*      _grid;
     // stores the last move made: {column, row}
     std::pair<int,int> _lastMove{ -1, -1 };

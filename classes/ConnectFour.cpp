@@ -275,7 +275,7 @@ void ConnectFour::updateAI()
         if (row != -1) {
             // Make the move
             state[row * 7 + col] = '2'; // AI is player 2
-            int moveVal = -negamax(state, 2, HUMAN_PLAYER);
+            int moveVal = -negamax(state, 2, HUMAN_PLAYER, -1000, 1000);
             // Undo the move
             state[row * 7 + col] = '0';
             // If the value of the current move is more than the best value, update best
@@ -384,22 +384,27 @@ int evaluateAIBoardCFour(const std::string& state) {
     return score;
 }
 
-int ConnectFour::negamax(std::string& state, int depth, int playerColor) {
-    printf("negmaxxing");
+int ConnectFour::negamax(std::string& state, int depth, int playerColor, int alpha, int beta) {
     int score = evaluateAIBoardCFour(state);
-    if (depth == 0 || isAIBoardFullCFour(state)) return score;
+    if (depth == 0 || isAIBoardFullCFour(state)) {
+        return score;
+    }
 
+    int bestScore = -1000;  // Initialize to a very low value
     for (int x = 0; x < 7; x++) {
         int lowest = lowestEmptyRowInColumn(x);
         if (lowest != -1) {
-            // Make the move
-            state[lowest * 7 + x] = (playerColor == AI_PLAYER) ? '2' : '1';
-            score = std::max(score, -negamax(state, depth - 1, -playerColor));
-            // Undo the move
-            state[lowest * 7 + x] = '0';
+            state[lowest * 7 + x] = (playerColor == AI_PLAYER) ? '2' : '1'; // Make the move
+            int currentScore = -negamax(state, depth - 1, -playerColor, -beta, -alpha); // Recursive call
+            state[lowest * 7 + x] = '0'; // Undo the move
+
+            bestScore = std::max(bestScore, currentScore);
+            alpha = std::max(alpha, bestScore);
+
+            if (alpha >= beta) {
+                break; // Prune the branch
+            }
         }
     }
-    return score;
-    
-    
+    return bestScore;
 }
